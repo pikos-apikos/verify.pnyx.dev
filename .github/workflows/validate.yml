@@ -1,0 +1,103 @@
+name: Validate site
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Validate static site
+        run: |
+          python3 site/build.py --check
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          from urllib.parse import urlparse
+          import xml.etree.ElementTree as ET
+
+          root = Path('.')
+          required = {
+              'index.html', 'el/index.html', '404.html', 'styles.css',
+              'favicon.svg', 'robots.txt', 'sitemap.xml', 'llms.txt', '_headers'
+          }
+          missing = sorted(name for name in required if not (root / name).is_file())
+          if missing:
+              raise SystemExit(f"Missing required files: {', '.join(missing)}")
+
+          class Document(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.ids = set()
+                  self.links = []
+                  self.assets = []
+                  self.language = None
+
+              def handle_starttag(self, tag, attrs):
+                  values = dict(attrs)
+                  if tag == 'html':
+                      self.language = values.get('lang')
+                  if 'id' in values:
+                      self.ids.add(values['id'])
+                  if tag in {'a', 'link'} and values.get('href'):
+                      self.links.append(values['href'])
+                  if tag == 'script' and values.get('src'):
+                      self.assets.append(values['src'])
+                  if tag == 'img' and values.get('src'):
+                      self.assets.append(values['src'])
+
+          pages = {'index.html': 'en', 'el/index.html': 'el'}
+          documents = {}
+          for filename, language in pages.items():
+              parser = Document()
+              parser.feed((root / filename).read_text(encoding='utf-8'))
+              documents[filename] = parser
+              if parser.language != language:
+                  raise SystemExit(f"{filename} must declare lang={language!r}")
+              for anchor in ('main', 'claim', 'method', 'principles', 'status'):
+                  if anchor not in parser.ids:
+                      raise SystemExit(f"{filename} is missing required anchor #{anchor}")
+
+          for filename, document in documents.items():
+              for href in document.links:
+                  if href.startswith('#') and href[1:] not in document.ids:
+                      raise SystemExit(f"Broken internal anchor in {filename}: {href}")
+                  if href.startswith('/') and href not in {'/', '/el/'}:
+                      target = href.split('#', 1)[0].lstrip('/')
+                      if target and not (root / target).exists():
+                          raise SystemExit(f"Broken root-relative path in {filename}: {href}")
+              external = [asset for asset in document.assets if urlparse(asset).scheme in {'http', 'https'}]
+              if external:
+                  raise SystemExit(f"Unexpected external runtime assets in {filename}: {external}")
+
+          sitemap = ET.parse(root / 'sitemap.xml').getroot()
+          namespace = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          locations = {node.text for node in sitemap.findall('.//sm:loc', namespace)}
+          expected = {'https://verify.pnyx.dev/', 'https://verify.pnyx.dev/el/'}
+          if locations != expected:
+              raise SystemExit(f"sitemap.xml locations differ: {locations}")
+
+          if 'https://verify.pnyx.dev/sitemap.xml' not in (root / 'robots.txt').read_text(encoding='utf-8'):
+              raise SystemExit('robots.txt does not reference the canonical sitemap')
+
+          llms = (root / 'llms.txt').read_text(encoding='utf-8')
+          if 'global, multilingual' not in llms or 'insufficient evidence' not in llms:
+              raise SystemExit('llms.txt is missing Verify product constraints')
+
+          print('Static site validation passed.')
+          PY

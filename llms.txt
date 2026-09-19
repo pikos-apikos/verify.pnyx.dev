@@ -1,0 +1,26 @@
+# Verify by PNyx
+
+> Verify is PNyx's global, multilingual evidence-verification engine.
+
+Verify is not an infallible AI truth oracle. It is a system for turning a precise claim into a traceable evidence record.
+
+## Public contract
+
+- Evidence comes before verdict.
+- Primary and authoritative sources are preferred for the claim and jurisdiction.
+- Cross-language evidence is part of the core design.
+- Source provenance, exact excerpts, timestamps, versions, and conflicts remain visible.
+- Verification status, evidence quality, coverage, source agreement, temporal fit, model uncertainty, and human review are separate signals.
+- If evidence is insufficient, the correct result is `insufficient evidence` rather than a fabricated conclusion.
+- High-impact claims require accountable human review.
+
+## Status
+
+The project is in its foundation stage. This website describes the contract and research direction; it is not yet a public verification service.
+
+## Links
+
+- Website: https://verify.pnyx.dev/
+- Greek: https://verify.pnyx.dev/el/
+- PNyx: https://pnyx.dev/
+- Source: https://github.com/pikos-apikos/verify.pnyx.dev
