@@ -30,6 +30,8 @@ The builder contains no page content, navigation, metadata, or verification logi
 5. The public runtime has no JavaScript, external assets, trackers, cookies, or model dependency.
 6. The website describes Verify's contract; it is not itself the verification engine.
 7. Human approval remains the publication gate.
+8. The public contract keeps semantic evidence separate from execution economics: implementation receipts may expose attributable resource usage and a monetary CostEstimate only when tied to an explicit pricing model/version and currency. Unknown monetary cost is never rendered as zero.
+9. Performance or optimization claims published by the site must state their workload/verification scope and resource/cost impact, not latency alone.
 
 ## Cloudflare Pages
 
