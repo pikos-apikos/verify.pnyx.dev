@@ -58,6 +58,8 @@ nav a[hreflang] { margin-left: .5rem; border: 1px solid #385156; }
 
 main, footer { width: min(calc(100% - 2.5rem), var(--wide)); margin-inline: auto; }
 .hero {
+  position: relative;
+  isolation: isolate;
   width: 100%;
   max-width: none;
   display: grid;
@@ -67,7 +69,17 @@ main, footer { width: min(calc(100% - 2.5rem), var(--wide)); margin-inline: auto
   min-height: calc(100vh - 72px);
   padding: clamp(5rem, 9vw, 9rem) 0;
 }
-.hero::before { content: ""; position: absolute; inset: 72px 0 auto; height: min(74vh, 760px); z-index: -1; background: radial-gradient(circle at 78% 44%, rgba(110, 231, 216, .14), transparent 25%), linear-gradient(180deg, var(--night) 0 70%, transparent 70%); }
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 78% 44%, rgba(110, 231, 216, .14), transparent 25%),
+    var(--night);
+  box-shadow: 0 0 0 100vmax var(--night);
+  clip-path: inset(0 -100vmax);
+}
 .eyebrow { margin: 0 0 1rem; color: var(--cyan-dark); font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .hero .eyebrow { color: var(--cyan); }
 h1, h2, h3, p { margin-top: 0; }
@@ -138,7 +150,6 @@ footer p { margin: 0; }
 @media (max-width: 900px) {
   nav a:not([hreflang]) { display: none; }
   .hero { grid-template-columns: 1fr; min-height: auto; }
-  .hero::before { height: 710px; }
   .evidence-window { max-width: 650px; }
   .principle-grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -149,7 +160,6 @@ footer p { margin: 0; }
   .brand { font-size: 1.15rem; }
   .brand small { display: none; }
   .hero { padding-top: 4.5rem; }
-  .hero::before { top: 64px; height: 650px; }
   h1 { font-size: clamp(3.4rem, 18vw, 5rem); }
   .statement-grid, .status-section { grid-template-columns: 1fr; }
   .principle-grid { grid-template-columns: 1fr; }
