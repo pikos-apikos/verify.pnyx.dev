@@ -33,6 +33,9 @@ python3 site/build.py serve
 - Present Verify as a verification system, never as an infallible truth oracle.
 - Separate evidence status, quality, coverage, agreement, temporal fit, uncertainty, and human review.
 - Preserve abstention when evidence is insufficient.
+- Keep ResourceUsage and CostEstimate separate from semantic evidence/assessment authority.
+- When publishing cost, state the pricing model/version and currency; render unavailable monetary cost as unknown, never zero.
+- Do not publish performance/optimization claims without workload scope and resource/cost impact.
 - Do not claim a feature, deployment, or public service is live without verification.
 - Run build and validation before finishing.
 
