@@ -4,6 +4,8 @@ Public website for **Verify**, PNyx's global, multilingual evidence-verification
 
 Verify is not an AI truth oracle. Its purpose is to turn a claim into a traceable evidence record: exact sources, relevant excerpts, provenance, conflicts, uncertainty, and an explicit `insufficient evidence` state.
 
+Verification also has an execution cost. The product contract therefore treats attributable resource usage as run evidence and monetary cost as a derived, versioned estimate. If pricing cannot be established, cost is `unknown`, not zero.
+
 The website follows the deterministic static setup used by [`pnyx.dev`](https://github.com/pikos-apikos/pnyx.dev). The runtime is dependency-free HTML and CSS.
 
 ## Build
